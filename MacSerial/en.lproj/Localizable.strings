@@ -1,0 +1,103 @@
+/* 
+  Localizable.strings (English)
+  MacSerial
+*/
+
+// Tab related
+"new_tab" = "New Tab";
+"close_tab" = "Close Tab";
+
+// Serial port settings
+"serial_port" = "Port:";
+"baud_rate" = "Baud Rate:";
+"data_bits" = "Data Bits:";
+"stop_bits" = "Stop Bits:";
+"parity" = "Parity:";
+"parity_none" = "None";
+"parity_odd" = "Odd";
+"parity_even" = "Even";
+
+// Connection control
+"connect" = "Connect";
+"disconnect" = "Disconnect";
+"refresh_port_list" = "Refresh Port List";
+
+// Receive area
+"receive_area" = "Receive Area";
+"display_latest" = "(Showing latest %d/%d total)";
+"format" = "Format";
+"format_text" = "Text";
+"format_hex" = "HEX";
+"format_mixed" = "Mixed";
+"timestamp" = "Timestamp";
+"auto_scroll" = "Auto Scroll";
+"save_log" = "Save Log";
+"clear" = "Clear";
+
+// Send area
+"send_area" = "Send Area";
+"send_format" = "Format:";
+"line_ending" = "Line Ending:";
+"line_ending_none" = "None";
+"line_ending_cr" = "CR (\\r)";
+"line_ending_lf" = "LF (\\n)";
+"line_ending_crlf" = "CRLF (\\r\\n)";
+"auto_send" = "Auto Send";
+"send" = "Send";
+
+// Quick commands
+"new_command" = "New Command";
+"quick_commands" = "Quick Commands";
+"add_command" = "Add Command";
+"edit_command" = "Edit Command";
+"delete_command" = "Delete Command";
+"command_name" = "Command Name";
+"command_content" = "Command Content";
+"hex_format" = "HEX Format";
+"save" = "Save";
+"cancel" = "Cancel";
+"show_commands" = "Show Quick Commands";
+"hide_commands" = "Hide Quick Commands";
+
+// Status bar
+"status" = "Status:";
+"connected" = "Connected";
+"disconnected" = "Disconnected";
+"rx" = "RX:";
+"tx" = "TX:";
+"errors" = "Errors:";
+"reset_counters" = "Reset";
+
+// Error messages
+"select_port" = "Please select a port";
+"cannot_open_port" = "Cannot open port";
+
+// Menu bar
+"menu_new_tab" = "New Tab";
+"menu_close_tab" = "Close Tab";
+"menu_save_log" = "Save Log...";
+"menu_clear_receive" = "Clear Receive Area";
+"menu_clear_send" = "Clear Send Area";
+"menu_connect" = "Connect Serial Port";
+"menu_disconnect" = "Disconnect Serial Port";
+"menu_refresh_ports" = "Refresh Port List";
+"menu_toggle_commands" = "Toggle Quick Commands";
+"menu_serial" = "Serial";
+"menu_view" = "View";
+
+// Tab labels
+"serial_port_tab" = "Port %d";
+
+// Quick command defaults
+"cmd_control_signals" = "--- Control Signals ---";
+"cmd_rts_high" = "RTS High";
+"cmd_rts_low" = "RTS Low";
+"cmd_dtr_high" = "DTR High";
+"cmd_dtr_low" = "DTR Low";
+"cmd_mcu_control" = "--- MCU Control ---";
+"cmd_restart_chip" = "Restart Chip";
+"cmd_common_commands" = "--- Common Commands ---";
+"cmd_query" = "Query";
+"cmd_reset" = "Reset";
+"cmd_version_query" = "Version Query";
+"cmd_wifi_scan" = "WiFi Scan";

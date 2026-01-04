@@ -1,0 +1,103 @@
+/* 
+  Localizable.strings (Simplified Chinese)
+  MacSerial
+*/
+
+// Tab 相关
+"new_tab" = "新建标签";
+"close_tab" = "关闭标签";
+
+// 串口设置
+"serial_port" = "串口:";
+"baud_rate" = "波特率:";
+"data_bits" = "数据位:";
+"stop_bits" = "停止位:";
+"parity" = "校验:";
+"parity_none" = "无";
+"parity_odd" = "奇";
+"parity_even" = "偶";
+
+// 连接控制
+"connect" = "连接";
+"disconnect" = "断开";
+"refresh_port_list" = "刷新串口列表";
+
+// 接收区域
+"receive_area" = "接收区域";
+"display_latest" = "(显示最新%d条/共%d条)";
+"format" = "格式";
+"format_text" = "文本";
+"format_hex" = "HEX";
+"format_mixed" = "混合";
+"timestamp" = "时间戳";
+"auto_scroll" = "自动滚动";
+"save_log" = "保存日志";
+"clear" = "清空";
+
+// 发送区域
+"send_area" = "发送区域";
+"send_format" = "格式:";
+"line_ending" = "换行:";
+"line_ending_none" = "无";
+"line_ending_cr" = "CR (\\r)";
+"line_ending_lf" = "LF (\\n)";
+"line_ending_crlf" = "CRLF (\\r\\n)";
+"auto_send" = "循环发送";
+"send" = "发送";
+
+// 快捷命令
+"new_command" = "新命令";
+"quick_commands" = "快捷命令";
+"add_command" = "添加命令";
+"edit_command" = "编辑命令";
+"delete_command" = "删除命令";
+"command_name" = "命令名称";
+"command_content" = "命令内容";
+"hex_format" = "HEX格式";
+"save" = "保存";
+"cancel" = "取消";
+"show_commands" = "显示快捷命令";
+"hide_commands" = "隐藏快捷命令";
+
+// 状态栏
+"status" = "状态:";
+"connected" = "已连接";
+"disconnected" = "未连接";
+"rx" = "RX:";
+"tx" = "TX:";
+"errors" = "错误:";
+"reset_counters" = "清零";
+
+// 错误消息
+"select_port" = "请选择串口";
+"cannot_open_port" = "无法打开串口";
+
+// 菜单栏
+"menu_new_tab" = "新建标签";
+"menu_close_tab" = "关闭标签";
+"menu_save_log" = "保存日志...";
+"menu_clear_receive" = "清空接收区";
+"menu_clear_send" = "清空发送区";
+"menu_connect" = "连接串口";
+"menu_disconnect" = "断开串口";
+"menu_refresh_ports" = "刷新端口列表";
+"menu_toggle_commands" = "显示/隐藏快捷命令";
+"menu_serial" = "串口";
+"menu_view" = "视图";
+
+// Tab 标签
+"serial_port_tab" = "串口 %d";
+
+// 快捷命令默认值
+"cmd_control_signals" = "--- 控制信号 ---";
+"cmd_rts_high" = "RTS高";
+"cmd_rts_low" = "RTS低";
+"cmd_dtr_high" = "DTR高";
+"cmd_dtr_low" = "DTR低";
+"cmd_mcu_control" = "--- 单片机控制 ---";
+"cmd_restart_chip" = "重启芯片";
+"cmd_common_commands" = "--- 常用指令 ---";
+"cmd_query" = "查询";
+"cmd_reset" = "复位";
+"cmd_version_query" = "版本查询";
+"cmd_wifi_scan" = "WiFi扫描";
