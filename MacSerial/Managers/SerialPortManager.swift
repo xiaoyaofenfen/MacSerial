@@ -60,7 +60,18 @@ class SerialPortManager: ObservableObject {
     
     // 获取系统串口列表
     private func getSerialPorts() -> [String] {
-        var ports: [String] = []
+        var ports = Set<String>()
+        
+        func isSupportedSerialPath(_ path: String) -> Bool {
+            return path.hasPrefix("/dev/cu.")
+                || path.hasPrefix("/dev/tty.")
+                || path.hasPrefix("/dev/ttys")
+        }
+        
+        func appendIfSupported(_ path: String) {
+            guard isSupportedSerialPath(path) else { return }
+            ports.insert(path)
+        }
         
         let matchingDict = IOServiceMatching(kIOSerialBSDServiceValue)
         var iterator: io_iterator_t = 0
@@ -82,11 +93,24 @@ class SerialPortManager: ObservableObject {
                     kCFAllocatorDefault,
                     0
                 )?.takeRetainedValue() as? String {
-                    // 只添加 cu 设备（callout devices）
-                    if devicePath.contains("/dev/cu.") {
-                        ports.append(devicePath)
-                    }
+                    appendIfSupported(devicePath)
                 }
+                
+                if let devicePath = IORegistryEntryCreateCFProperty(
+                    serialService,
+                    kIODialinDeviceKey as CFString,
+                    kCFAllocatorDefault,
+                    0
+                )?.takeRetainedValue() as? String {
+                    appendIfSupported(devicePath)
+                }
+            }
+        }
+        
+        // `socat` 在 macOS 上常创建 `/dev/ttys*` 伪终端，这类设备通常不会出现在 IOKit 串口列表里。
+        if let devEntries = try? FileManager.default.contentsOfDirectory(atPath: "/dev") {
+            for entry in devEntries where entry.hasPrefix("ttys") {
+                appendIfSupported("/dev/\(entry)")
             }
         }
         
