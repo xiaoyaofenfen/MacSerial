@@ -41,6 +41,9 @@ class SerialPortManager: ObservableObject {
     
     private var fileDescriptor: Int32 = -1
     private var readSource: DispatchSourceRead?
+    private var pendingReceiveBuffer = Data()
+    private var pendingReceiveFlushWorkItem: DispatchWorkItem?
+    private let receiveFlushDelay: TimeInterval = 0.02 // 接收消息缓冲最大时间20ms，不管是否接收到完整的报文都先展示，减少延迟
     
     init() {
         refreshPortList()
@@ -212,6 +215,10 @@ class SerialPortManager: ObservableObject {
     
     // 断开串口
     func disconnect() {
+        flushPendingReceiveBuffer()
+        pendingReceiveFlushWorkItem?.cancel()
+        pendingReceiveFlushWorkItem = nil
+        
         if fileDescriptor != -1 {
             readSource?.cancel()
             readSource = nil
@@ -235,21 +242,56 @@ class SerialPortManager: ObservableObject {
             
             if bytesRead > 0 {
                 let data = Data(buffer[0..<bytesRead])
-                
-                DispatchQueue.main.async {
-                    self.rxByteCount += bytesRead
-                    let item = ReceivedDataItem(timestamp: Date(), data: data, isReceived: true)
-                    
-                    // 保存到完整数据存储
-                    self.allReceivedData.append(item)
-                    
-                    // 更新显示窗口（只显示最新的数据）
-                    self.updateDisplayWindow()
-                }
+                self.handleReceivedData(data)
             }
         }
         
         readSource?.resume()
+    }
+
+    private func handleReceivedData(_ data: Data) {
+        rxByteCount += data.count
+        pendingReceiveBuffer.append(data)
+        flushCompleteLinesIfNeeded()
+        schedulePendingReceiveFlush()
+    }
+    
+    private func flushCompleteLinesIfNeeded() {
+        while let range = pendingReceiveBuffer.rangeOfLineTerminator() {
+            let message = pendingReceiveBuffer.subdata(in: 0..<range.upperBound)
+            appendReceivedItem(message)
+            pendingReceiveBuffer.removeSubrange(0..<range.upperBound)
+        }
+    }
+    
+    private func schedulePendingReceiveFlush() {
+        pendingReceiveFlushWorkItem?.cancel()
+        
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.flushPendingReceiveBuffer()
+        }
+        
+        pendingReceiveFlushWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + receiveFlushDelay, execute: workItem)
+    }
+    
+    private func flushPendingReceiveBuffer() {
+        pendingReceiveFlushWorkItem?.cancel()
+        pendingReceiveFlushWorkItem = nil
+        
+        guard !pendingReceiveBuffer.isEmpty else { return }
+        appendReceivedItem(pendingReceiveBuffer)
+        pendingReceiveBuffer.removeAll(keepingCapacity: true)
+    }
+    
+    private func appendReceivedItem(_ data: Data) {
+        let item = ReceivedDataItem(timestamp: Date(), data: data, isReceived: true)
+        
+        // 保存到完整数据存储
+        allReceivedData.append(item)
+        
+        // 更新显示窗口（只显示最新的数据）
+        updateDisplayWindow()
     }
     
     // 发送数据
@@ -354,6 +396,9 @@ class SerialPortManager: ObservableObject {
     
     // 清空接收缓冲
     func clearReceived() {
+        pendingReceiveFlushWorkItem?.cancel()
+        pendingReceiveFlushWorkItem = nil
+        pendingReceiveBuffer.removeAll(keepingCapacity: false)
         allReceivedData.removeAll()
         receivedData.removeAll()
     }
@@ -505,5 +550,23 @@ class SerialPortManager: ObservableObject {
     
     deinit {
         disconnect()
+    }
+}
+
+private extension Data {
+    func rangeOfLineTerminator() -> Range<Data.Index>? {
+        guard let newlineIndex = firstIndex(of: 0x0A) ?? firstIndex(of: 0x0D) else {
+            return nil
+        }
+        
+        let nextIndex = index(after: newlineIndex)
+        
+        if self[newlineIndex] == 0x0D,
+           nextIndex < endIndex,
+           self[nextIndex] == 0x0A {
+            return startIndex..<index(after: nextIndex)
+        }
+        
+        return startIndex..<nextIndex
     }
 }
