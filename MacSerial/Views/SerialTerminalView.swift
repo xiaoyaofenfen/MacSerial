@@ -9,6 +9,21 @@ import SwiftUI
 import AppKit
 import Combine
 
+private func displayText(for item: ReceivedDataItem, manager: SerialPortManager, format: DisplayFormat) -> String {
+    let formattedData = manager.formatData(item.data, format: format)
+    guard !formattedData.isEmpty else { return "" }
+    
+//    let prefix = item.isReceived ? "[收] " : "[发] "
+    let prefix = item.isReceived ? String(localized: "receive_msg") : String(localized: "send_msg")
+    let lines = formattedData.split(separator: "\n", omittingEmptySubsequences: false)
+    
+    // split 后如果原文以换行结尾，最后会多一个空片段，这里跳过它以避免多加一行前缀。
+    let contentLines = formattedData.hasSuffix("\n") ? lines.dropLast() : lines[...]
+    let result = contentLines.map { prefix + String($0) }.joined(separator: "\n")
+    
+    return formattedData.hasSuffix("\n") ? result + "\n" : result
+}
+
 /// 不响应滚动事件的ScrollView（用于时间戳列）
 class NonScrollableScrollView: NSScrollView {
     override func scrollWheel(with event: NSEvent) {
@@ -175,12 +190,12 @@ struct TimestampColumn: NSViewRepresentable {
         Coordinator()
     }
     
-    class Coordinator {
+        class Coordinator {
         weak var textView: NSTextView?
         weak var scrollView: NSScrollView?
         
         func getTimestamps(manager: SerialPortManager, format: DisplayFormat) -> String {
-            let items = manager.receivedData.filter { $0.isReceived }
+            let items = manager.receivedData
             guard !items.isEmpty else { return "" }
             
             let formatter = DateFormatter()
@@ -189,7 +204,7 @@ struct TimestampColumn: NSViewRepresentable {
             var result: [String] = []
             for item in items {
                 let timestamp = formatter.string(from: item.timestamp)
-                let formattedData = manager.formatData(item.data, format: format)
+                let formattedData = displayText(for: item, manager: manager, format: format)
                 let lineCount = formattedData.filter { $0 == "\n" }.count
                 
                 // 为每一行添加相同的时间戳
@@ -312,9 +327,9 @@ struct DataColumn: NSViewRepresentable {
             
             // 格式切换或首次加载：全量格式化
             if format != lastFormat || lastDataCount == 0 {
-                let items = manager.receivedData.filter { $0.isReceived }
+                let items = manager.receivedData
                 cachedText = items.map { item in
-                    manager.formatData(item.data, format: format)
+                    displayText(for: item, manager: manager, format: format)
                 }.joined()
                 
                 lastDataCount = currentCount
@@ -326,9 +341,8 @@ struct DataColumn: NSViewRepresentable {
             if currentCount > lastDataCount {
                 let newItems = Array(manager.receivedData[lastDataCount..<currentCount])
                 let newText = newItems
-                    .filter { $0.isReceived }
                     .map { item in
-                        manager.formatData(item.data, format: format)
+                        displayText(for: item, manager: manager, format: format)
                     }
                     .joined()
                 
@@ -339,9 +353,9 @@ struct DataColumn: NSViewRepresentable {
             
             // 数据减少（清空）
             if currentCount < lastDataCount {
-                let items = manager.receivedData.filter { $0.isReceived }
+                let items = manager.receivedData
                 cachedText = items.map { item in
-                    manager.formatData(item.data, format: format)
+                    displayText(for: item, manager: manager, format: format)
                 }.joined()
                 
                 lastDataCount = currentCount

@@ -23,7 +23,7 @@
 "refresh_port_list" = "刷新串口列表";
 
 // 接收区域
-"receive_area" = "接收区域";
+"receive_area" = "日志区域";
 "display_latest" = "(显示最新%d条/共%d条)";
 "format" = "格式";
 "format_text" = "文本";
@@ -33,6 +33,8 @@
 "auto_scroll" = "自动滚动";
 "save_log" = "保存日志";
 "clear" = "清空";
+"receive_msg" = "[收]<- ";
+"send_msg" = "[发]-> ";
 
 // 发送区域
 "send_area" = "发送区域";

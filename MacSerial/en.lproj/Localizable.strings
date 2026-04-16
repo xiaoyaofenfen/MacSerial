@@ -23,7 +23,7 @@
 "refresh_port_list" = "Refresh Port List";
 
 // Receive area
-"receive_area" = "Receive Area";
+"receive_area" = "Log Area";
 "display_latest" = "(Showing latest %d/%d total)";
 "format" = "Format";
 "format_text" = "Text";
@@ -33,6 +33,8 @@
 "auto_scroll" = "Auto Scroll";
 "save_log" = "Save Log";
 "clear" = "Clear";
+"receive_msg" = "[REV]<- ";
+"send_msg" = "[SEND]-> ";
 
 // Send area
 "send_area" = "Send Area";

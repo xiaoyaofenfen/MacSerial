@@ -240,7 +240,7 @@ struct SerialPortTabView: View {
         VStack(spacing: 0) {
             // 接收区工具栏
             HStack {
-                Image(systemName: "arrow.down.circle")
+                Image(systemName: "text.alignleft")
                 Text(LocalizedStringKey("receive_area"))
                     .font(.headline)
                 
