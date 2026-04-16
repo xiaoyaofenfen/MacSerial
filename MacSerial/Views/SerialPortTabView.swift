@@ -290,7 +290,7 @@ struct SerialPortTabView: View {
         VStack(spacing: 0) {
             // 发送区工具栏
             HStack {
-                Image(systemName: "arrow.up.circle")
+                Image(systemName: "paperplane")
                 Text(LocalizedStringKey("send_area"))
                     .font(.headline)
                 
