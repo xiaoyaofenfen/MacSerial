@@ -9,12 +9,15 @@ import SwiftUI
 import AppKit
 import Combine
 
+private func displayPrefix(for item: ReceivedDataItem) -> String {
+    item.isReceived ? String(localized: "receive_msg") : String(localized: "send_msg")
+}
+
 private func displayText(for item: ReceivedDataItem, manager: SerialPortManager, format: DisplayFormat) -> String {
     let formattedData = manager.formatData(item.data, format: format)
     guard !formattedData.isEmpty else { return "" }
     
-//    let prefix = item.isReceived ? "[收] " : "[发] "
-    let prefix = item.isReceived ? String(localized: "receive_msg") : String(localized: "send_msg")
+    let prefix = displayPrefix(for: item)
     let lines = formattedData.split(separator: "\n", omittingEmptySubsequences: false)
     
     // split 后如果原文以换行结尾，最后会多一个空片段，这里跳过它以避免多加一行前缀。
@@ -22,6 +25,61 @@ private func displayText(for item: ReceivedDataItem, manager: SerialPortManager,
     let result = contentLines.map { prefix + String($0) }.joined(separator: "\n")
     
     return formattedData.hasSuffix("\n") ? result + "\n" : result
+}
+
+private func attributedDisplayText(for item: ReceivedDataItem, manager: SerialPortManager, format: DisplayFormat, font: NSFont, textColor: NSColor) -> NSAttributedString {
+    let prefix = displayPrefix(for: item)
+    let fullText = displayText(for: item, manager: manager, format: format)
+    let nsFullText = fullText as NSString
+    let prefixLength = (prefix as NSString).length
+    let result = NSMutableAttributedString(
+        string: fullText,
+        attributes: [
+            .font: font,
+            .foregroundColor: textColor
+        ]
+    )
+    guard !fullText.isEmpty else { return result }
+    
+    let prefixColor = item.isReceived ? NSColor.systemGreen : NSColor.systemRed
+    let textColor = NSColor.textColor
+    let lines = fullText.split(separator: "\n", omittingEmptySubsequences: false)
+    var location = Int(0)
+    
+    for line in lines {
+        let lineText = String(line)
+        let nsLineText = lineText as NSString
+        var textLength = nsLineText.length
+        // 标签颜色
+        if lineText.hasPrefix(prefix) {
+            result.addAttribute(
+                .foregroundColor,
+                value: prefixColor,
+                range: NSRange(location: location, length: prefixLength)
+            )
+            location += prefixLength
+            textLength -= prefixLength
+        }
+        // 文本颜色
+        result.addAttribute(
+            .foregroundColor,
+            value: textColor,
+            range: NSRange(location: location, length: textLength)
+        )
+        
+        // 处理下一行文本
+        location += textLength + 1
+    }
+    
+    if nsFullText.length > 0, fullText.hasSuffix("\n") {
+        let lastIndex = nsFullText.length - 1
+        let lastChar = nsFullText.substring(with: NSRange(location: lastIndex, length: 1))
+        if lastChar != "\n" {
+            assertionFailure("Unexpected attributed text line accounting")
+        }
+    }
+    
+    return result
 }
 
 /// 不响应滚动事件的ScrollView（用于时间戳列）
@@ -261,7 +319,9 @@ struct DataColumn: NSViewRepresentable {
         
         // 立即显示初始内容
         let initialText = context.coordinator.getFormattedText(manager: manager, format: manager.displayFormat)
-        textView.string = initialText
+        textView.textStorage?.setAttributedString(
+            context.coordinator.getFormattedAttributedText(manager: manager, format: manager.displayFormat, font: textView.font ?? NSFont.monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular), textColor: textView.textColor ?? .textColor)
+        )
         
         #if DEBUG
         print("📝 SerialTerminalView makeNSView: 初始文本长度=\(initialText.count)")
@@ -281,7 +341,9 @@ struct DataColumn: NSViewRepresentable {
             let wasAtBottom = context.coordinator.isScrolledToBottom()
             
             // 更新文本
-            textView.string = newText
+            textView.textStorage?.setAttributedString(
+                context.coordinator.getFormattedAttributedText(manager: manager, format: manager.displayFormat, font: textView.font ?? NSFont.monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular), textColor: textView.textColor ?? .textColor)
+            )
             
             #if DEBUG
             print("📝 updateNSView: 更新文本，新长度=\(newText.count)")
@@ -363,6 +425,26 @@ struct DataColumn: NSViewRepresentable {
             }
             
             return cachedText
+        }
+
+        func getFormattedAttributedText(manager: SerialPortManager, format: DisplayFormat, font: NSFont, textColor: NSColor) -> NSAttributedString {
+            let resolvedFont = textView?.font ?? font
+            let resolvedTextColor = textView?.textColor ?? textColor
+            let result = NSMutableAttributedString()
+            
+            for item in manager.receivedData {
+                result.append(
+                    attributedDisplayText(
+                        for: item,
+                        manager: manager,
+                        format: format,
+                        font: resolvedFont,
+                        textColor: resolvedTextColor
+                    )
+                )
+            }
+            
+            return result
         }
         
         func isScrolledToBottom() -> Bool {
