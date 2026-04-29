@@ -285,7 +285,7 @@ class SerialPortManager: ObservableObject {
     }
     
     private func appendReceivedItem(_ data: Data) {
-        let item = ReceivedDataItem(timestamp: Date(), data: data, isReceived: true)
+        let item = ReceivedDataItem(timestamp: Date(), data: data, isReceived: true, preferredDisplayFormat: .hex)
         
         // 保存到完整数据存储
         allReceivedData.append(item)
@@ -295,7 +295,7 @@ class SerialPortManager: ObservableObject {
     }
     
     // 发送数据
-    func send(data: Data, lineEnding: LineEndingType = .none) {
+    func send(data: Data, lineEnding: LineEndingType = .none, preferredDisplayFormat: DisplayFormat? = nil) {
         guard isConnected, fileDescriptor != -1 else {
             #if DEBUG
             print("❌ 发送失败: 串口未连接")
@@ -331,7 +331,12 @@ class SerialPortManager: ObservableObject {
                     
                     DispatchQueue.main.async {
                         self.txByteCount += bytesWritten
-                        let item = ReceivedDataItem(timestamp: Date(), data: sendData, isReceived: false)
+                        let item = ReceivedDataItem(
+                            timestamp: Date(),
+                            data: sendData,
+                            isReceived: false,
+                            preferredDisplayFormat: preferredDisplayFormat
+                        )
                         
                         // 保存到完整数据存储
                         self.allReceivedData.append(item)
@@ -362,7 +367,7 @@ class SerialPortManager: ObservableObject {
     // 发送HEX
     func sendHex(_ hexString: String, lineEnding: LineEndingType = .none) {
         let data = hexStringToData(hexString)
-        send(data: data, lineEnding: lineEnding)
+        send(data: data, lineEnding: lineEnding, preferredDisplayFormat: .hex)
     }
     
     // HEX字符串转Data

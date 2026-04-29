@@ -89,15 +89,17 @@ struct ReceivedDataItem: Identifiable {
     let timestamp: Date
     let data: Data
     let isReceived: Bool // true=接收，false=发送
+    let preferredDisplayFormat: DisplayFormat?
     
     // 预格式化缓存（懒加载）
     var formattedText: String?
     var formattedHex: String?
     var formattedMixed: String?
     
-    init(timestamp: Date, data: Data, isReceived: Bool) {
+    init(timestamp: Date, data: Data, isReceived: Bool, preferredDisplayFormat: DisplayFormat? = nil) {
         self.timestamp = timestamp
         self.data = data
         self.isReceived = isReceived
+        self.preferredDisplayFormat = preferredDisplayFormat
     }
 }

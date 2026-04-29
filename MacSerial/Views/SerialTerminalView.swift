@@ -14,7 +14,8 @@ private func displayPrefix(for item: ReceivedDataItem) -> String {
 }
 
 private func displayText(for item: ReceivedDataItem, manager: SerialPortManager, format: DisplayFormat) -> String {
-    let formattedData = manager.formatData(item.data, format: format)
+    let resolvedFormat = item.preferredDisplayFormat ?? format
+    let formattedData = manager.formatData(item.data, format: resolvedFormat)
     guard !formattedData.isEmpty else { return "" }
     
     let prefix = displayPrefix(for: item)
