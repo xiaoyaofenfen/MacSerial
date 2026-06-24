@@ -285,7 +285,8 @@ class SerialPortManager: ObservableObject {
     }
     
     private func appendReceivedItem(_ data: Data) {
-        let item = ReceivedDataItem(timestamp: Date(), data: data, isReceived: true, preferredDisplayFormat: .hex)
+        // 接收数据应跟随当前查看模式切换，不能在入队时固定为 HEX。
+        let item = ReceivedDataItem(timestamp: Date(), data: data, isReceived: true)
         
         // 保存到完整数据存储
         allReceivedData.append(item)
